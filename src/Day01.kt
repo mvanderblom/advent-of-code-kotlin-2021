@@ -1,9 +1,9 @@
 fun main() {
 
-    fun part1(input: List<String>): Int = input.subList(1, input.size)
-        .zip(input)
-        .map { (curr, prev) -> if (curr.toInt() > prev.toInt()) "increased" else "decreased" }
-        .count { it.equals("increased") }
+    fun part1(input: List<String>): Int = input
+        .map { it.toInt() }
+        .windowed(2)
+        .count { (prev, cur) -> cur > prev}
 
     fun part2(input: List<String>): Int {
         return input.size
