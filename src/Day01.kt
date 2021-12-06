@@ -5,9 +5,12 @@ fun main() {
         .windowed(2)
         .count { (prev, cur) -> cur > prev}
 
-    fun part2(input: List<String>): Int {
-        return input.size
-    }
+    fun part2(input: List<String>): Int = input
+            .map { it.toInt() }
+            .windowed(3)
+            .map { it.sum() }
+            .windowed(2)
+            .count { (prev, cur) -> cur > prev}
 
     val testInput = readInput("Day01_test")
     val testOutputPart1 = part1(testInput)
@@ -19,5 +22,7 @@ fun main() {
     println(outputPart1)
     check(outputPart1 == 1298)
 
-    println(part2(input))
+    val outputPart2 = part2(input)
+    println(outputPart2)
+    check(outputPart2 == 1248)
 }
