@@ -20,20 +20,23 @@ fun main() {
 
     fun Array<String?>.count(needle: String): Int = this.count{ hay -> hay == needle}
 
+    fun Array<String?>.mostCommonBit(): Int = (this.count("1") > this.size / 2).toInt()
+
+    fun Array<String?>.leastCommonBit(): Int = (this.count("1") < this.size / 2).toInt()
+
     fun part1(input: List<String>): Int {
         val transposedInput = input
             .map { it.chunked(1) }
             .transpose()
 
-        val size = transposedInput[0].size
 
         val gamma = transposedInput
-            .map { (it.count("1") > size / 2).toInt() }
+            .map { it.mostCommonBit() }
             .joinToString("")
             .parseAsBinary()
 
         val epsilon = transposedInput
-            .map { (it.count("1") < size / 2).toInt() }
+            .map { it.leastCommonBit() }
             .joinToString("")
             .parseAsBinary()
 
@@ -54,7 +57,7 @@ fun main() {
 
     val testOutputPart2 = part2(testInput)
     println(testOutputPart2)
-    check(testOutputPart2 == 5)
+    check(testOutputPart2 == 230)
 
 //    val outputPart2 = part2(input)
 //    println(outputPart2)
