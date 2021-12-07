@@ -19,9 +19,23 @@ fun main() {
 
     fun String.count(needle: Char): Int = this.count{ hay -> hay == needle}
 
-    fun String.mostCommonBit(): Int = (this.count('1') > this.length / 2).toInt()
+    fun String.commonBit(most: Boolean): Int?
+    {
+        val zeroCount = this.count('1')
+        val oneCount = this.count('1')
 
-    fun String.leastCommonBit(): Int = (this.count('1') < this.length / 2).toInt()
+        if(zeroCount == oneCount)
+            return null
+
+        if(most)
+            return (oneCount > zeroCount).toInt()
+        else
+            return return (zeroCount > oneCount).toInt()
+    }
+
+    fun String.mostCommonBit(): Int? = this.commonBit(true)
+
+    fun String.leastCommonBit(): Int? = this.commonBit(false)
 
     fun part1(input: List<String>): Int {
         val transposedInput = input
@@ -40,7 +54,43 @@ fun main() {
         return gamma * epsilon
     }
 
-    fun part2(input: List<String>): Int = input.size
+    fun findO2(input: List<String>, index: Int = 0): Int {
+        if (input.size == 1)
+            return input[0].parseAsBinary()
+
+        var discriminator = input
+            .transpose()[index]
+            .mostCommonBit()
+
+        if(discriminator == null)
+            discriminator = 1
+
+        return findO2(input.filter { it[index] == discriminator!!.digitToChar() }, index + 1)
+    }
+
+    fun findCO2(input: List<String>, index: Int = 0): Int {
+        if (input.size == 1)
+            return input[0].parseAsBinary()
+
+        val charsAtTransposedIndex = input
+            .transpose()[index]
+
+        var discriminator = charsAtTransposedIndex
+            .leastCommonBit()
+
+        if(discriminator == null)
+            discriminator = 1
+
+        return findCO2(input.filter { it[index] == discriminator!!.digitToChar() }, index + 1)
+    }
+
+    fun part2(input: List<String>): Int {
+
+        val o2 = findO2(input)
+        val co2 = findCO2(input)
+
+        return o2 * co2
+    }
 
     val testInput = readInput("Day03_test")
     val testOutputPart1 = part1(testInput)
