@@ -4,19 +4,6 @@ fun main() {
 
     fun String.parseAsBinary(): Int = Integer.parseInt(this, 2)
 
-    fun List<String>.transpose(): List<String> {
-        val columns = this[0].length
-
-        val transposed = (0 until columns).map { "" }.toMutableList()
-        for (row in this) {
-            for (column in 0 until columns) {
-                transposed[column] += row[column].toString()
-            }
-        }
-
-        return transposed
-    }
-
     fun String.count(needle: Char): Int = this.count{ hay -> hay == needle}
 
     fun String.commonBit(most: Boolean): Int? {
@@ -36,6 +23,19 @@ fun main() {
 
     fun String.leastCommonBit(): Char? = this.commonBit(false)?.digitToChar()
 
+    fun List<String>.transpose(): List<String> {
+        val columns = this[0].length
+
+        val transposed = (0 until columns).map { "" }.toMutableList()
+        for (row in this) {
+            for (column in 0 until columns) {
+                transposed[column] += row[column].toString()
+            }
+        }
+
+        return transposed
+    }
+
     fun part1(input: List<String>): Int {
         val transposedInput = input
             .transpose()
@@ -53,15 +53,14 @@ fun main() {
         return gamma * epsilon
     }
 
-    fun findBy(input: List<String>, discriminate: (element: String) -> Char, index: Int = 0): Int {
+    fun findBy(input: List<String>, discriminator: (element: String) -> Char, index: Int = 0): Int {
         if (input.size == 1)
             return input[0].parseAsBinary()
 
         val charsAtTransposedIndex = input.transpose()[index]
+        val discriminatorCharacter = discriminator(charsAtTransposedIndex)
 
-        val discriminator = discriminate(charsAtTransposedIndex)
-
-        return findBy(input.filter { it[index] == discriminator }, discriminate,index + 1)
+        return findBy(input.filter { it[index] == discriminatorCharacter }, discriminator,index + 1)
     }
 
     fun part2(input: List<String>): Int {
