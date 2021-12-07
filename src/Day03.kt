@@ -4,31 +4,28 @@ fun main() {
 
     fun String.parseAsBinary(): Int = Integer.parseInt(this,2)
 
-    fun List<List<String>>.transpose(): Array<Array<String?>> {
-        val rows = this.size
-        val columns = this[0].size
+    fun List<String>.transpose(): List<String> {
+        val columns = this[0].length
 
-        val transposed = Array(columns) { arrayOfNulls<String>(rows) }
-        for (i in 0 until rows) {
-            for (j in 0 until columns) {
-                transposed[j][i] = this[i][j]
+        val transposed = (0 until columns).map { "" }.toMutableList()
+        for (row in this) {
+            for (column in 0 until columns) {
+                transposed[column] += row[column].toString()
             }
         }
 
         return transposed
     }
 
-    fun Array<String?>.count(needle: String): Int = this.count{ hay -> hay == needle}
+    fun String.count(needle: Char): Int = this.count{ hay -> hay == needle}
 
-    fun Array<String?>.mostCommonBit(): Int = (this.count("1") > this.size / 2).toInt()
+    fun String.mostCommonBit(): Int = (this.count('1') > this.length / 2).toInt()
 
-    fun Array<String?>.leastCommonBit(): Int = (this.count("1") < this.size / 2).toInt()
+    fun String.leastCommonBit(): Int = (this.count('1') < this.length / 2).toInt()
 
     fun part1(input: List<String>): Int {
         val transposedInput = input
-            .map { it.chunked(1) }
             .transpose()
-
 
         val gamma = transposedInput
             .map { it.mostCommonBit() }
