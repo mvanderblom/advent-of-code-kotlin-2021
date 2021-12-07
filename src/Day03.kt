@@ -1,18 +1,24 @@
 fun main() {
 
+    fun Boolean.toInt(): Int = if(this) 1 else 0
+
+    fun String.parseAsBinary(): Int = Integer.parseInt(this,2)
+
     fun List<List<String>>.transpose(): Array<Array<String?>> {
         val rows = this.size
         val columns = this[0].size
 
         val transposed = Array(columns) { arrayOfNulls<String>(rows) }
-        for (i in 0..rows - 1) {
-            for (j in 0..columns - 1) {
+        for (i in 0 until rows) {
+            for (j in 0 until columns) {
                 transposed[j][i] = this[i][j]
             }
         }
 
         return transposed
     }
+
+    fun Array<String?>.count(needle: String): Int = this.count{ hay -> hay == needle}
 
     fun part1(input: List<String>): Int {
         val transposedInput = input
@@ -21,15 +27,17 @@ fun main() {
 
         val size = transposedInput[0].size
 
-        val gamma = transposedInput.map {
-            if (it.count { bit -> bit == "1" } > size / 2) 1 else 0
-        }.joinToString("")
+        val gamma = transposedInput
+            .map { (it.count("1") > size / 2).toInt() }
+            .joinToString("")
+            .parseAsBinary()
 
-        val epsilon = transposedInput.map {
-            if (it.count { bit -> bit == "1" } < size / 2) 1 else 0
-        }.joinToString("")
+        val epsilon = transposedInput
+            .map { (it.count("1") < size / 2).toInt() }
+            .joinToString("")
+            .parseAsBinary()
 
-        return Integer.parseInt(gamma,2) * Integer.parseInt(epsilon,2)
+        return gamma * epsilon
     }
 
     fun part2(input: List<String>): Int = input.size
@@ -44,10 +52,10 @@ fun main() {
     println(outputPart1)
     check(outputPart1 == 2261546)
 
-//    val testOutputPart2 = part2(testInput)
-//    println(testOutputPart2)
-//    check(testOutputPart2 == 5)
-//
+    val testOutputPart2 = part2(testInput)
+    println(testOutputPart2)
+    check(testOutputPart2 == 5)
+
 //    val outputPart2 = part2(input)
 //    println(outputPart2)
 //    check(outputPart2 == 1248)
