@@ -2,7 +2,7 @@ fun main() {
 
     fun Boolean.toInt(): Int = if(this) 1 else 0
 
-    fun String.parseAsBinary(): Int = Integer.parseInt(this,2)
+    fun String.parseAsBinary(): Int = Integer.parseInt(this, 2)
 
     fun List<String>.transpose(): List<String> {
         val columns = this[0].length
@@ -19,9 +19,8 @@ fun main() {
 
     fun String.count(needle: Char): Int = this.count{ hay -> hay == needle}
 
-    fun String.commonBit(most: Boolean): Int?
-    {
-        val zeroCount = this.count('1')
+    fun String.commonBit(most: Boolean): Int? {
+        val zeroCount = this.count('0')
         val oneCount = this.count('1')
 
         if(zeroCount == oneCount)
@@ -29,13 +28,13 @@ fun main() {
 
         if(most)
             return (oneCount > zeroCount).toInt()
-        else
-            return return (zeroCount > oneCount).toInt()
+
+        return (zeroCount > oneCount).toInt()
     }
 
-    fun String.mostCommonBit(): Int? = this.commonBit(true)
+    fun String.mostCommonBit(): Char? = this.commonBit(true)?.digitToChar()
 
-    fun String.leastCommonBit(): Int? = this.commonBit(false)
+    fun String.leastCommonBit(): Char? = this.commonBit(false)?.digitToChar()
 
     fun part1(input: List<String>): Int {
         val transposedInput = input
@@ -54,41 +53,20 @@ fun main() {
         return gamma * epsilon
     }
 
-    fun findO2(input: List<String>, index: Int = 0): Int {
+    fun findBy(input: List<String>, discriminate: (element: String) -> Char, index: Int = 0): Int {
         if (input.size == 1)
             return input[0].parseAsBinary()
 
-        var discriminator = input
-            .transpose()[index]
-            .mostCommonBit()
+        val charsAtTransposedIndex = input.transpose()[index]
 
-        if(discriminator == null)
-            discriminator = 1
+        val discriminator = discriminate(charsAtTransposedIndex)
 
-        return findO2(input.filter { it[index] == discriminator!!.digitToChar() }, index + 1)
-    }
-
-    fun findCO2(input: List<String>, index: Int = 0): Int {
-        if (input.size == 1)
-            return input[0].parseAsBinary()
-
-        val charsAtTransposedIndex = input
-            .transpose()[index]
-
-        var discriminator = charsAtTransposedIndex
-            .leastCommonBit()
-
-        if(discriminator == null)
-            discriminator = 1
-
-        return findCO2(input.filter { it[index] == discriminator!!.digitToChar() }, index + 1)
+        return findBy(input.filter { it[index] == discriminator }, discriminate,index + 1)
     }
 
     fun part2(input: List<String>): Int {
-
-        val o2 = findO2(input)
-        val co2 = findCO2(input)
-
+        val o2 = findBy(input, { it.mostCommonBit() ?: '1' } )
+        val co2 = findBy(input, { it.leastCommonBit() ?: '0' } )
         return o2 * co2
     }
 
@@ -106,7 +84,7 @@ fun main() {
     println(testOutputPart2)
     check(testOutputPart2 == 230)
 
-//    val outputPart2 = part2(input)
-//    println(outputPart2)
-//    check(outputPart2 == 1248)
+    val outputPart2 = part2(input)
+    println(outputPart2)
+    check(outputPart2 == 6775520)
 }
