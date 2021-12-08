@@ -47,23 +47,26 @@ fun main() {
         }
     }
 
+    fun getBoards(input: List<String>) = input
+        .subList(2,input.size)
+        .filter { it != "" }
+        .chunked(5)
+        .map(::Board)
+
+    fun getNumbers(input: List<String>) = input[0]
+        .split(',')
+        .map { it.toInt() }
 
     fun part1(input: List<String>): Int {
-        val boards = input
-            .subList(2,input.size)
-            .filter { it != "" }
-            .chunked(5)
-            .map(::Board)
+        val boards = getBoards(input)
         println("boards: ${boards}")
 
-        val randomNumbers = input[0]
-            .split(',')
-            .map { it.toInt() }
-        println("randomNumbers: ${randomNumbers}")
+        val numbers = getNumbers(input)
+        println("randomNumbers: ${numbers}")
 
-        for (i in (0..randomNumbers.size)) {
+        for (i in (0..numbers.size)) {
             for (board in boards) {
-                val score = board.score(randomNumbers.subList(0, i+1))
+                val score = board.score(numbers.subList(0, i+1))
                 if (score > -1)
                     return score
             }
@@ -72,7 +75,29 @@ fun main() {
         return -1
     }
 
-    fun part2(input: List<String>): Int = input.size
+    fun part2(input: List<String>): Int {
+        val boards = getBoards(input)
+        println("boards: ${boards}")
+
+        val numbers = getNumbers(input)
+        println("randomNumbers: ${numbers}")
+
+        val winningBoards = mutableListOf<Board>()
+        for (i in (0..numbers.size)) {
+            for (board in boards) {
+                if (!winningBoards.contains(board)) {
+                    val score = board.score(numbers.subList(0, i+1))
+                    if (score > -1)
+                        winningBoards.add(board)
+
+                    if (winningBoards.size == boards.size)
+                        return score
+                }
+            }
+        }
+
+        return -1
+    }
 
     val testInput = readInput("Day04_test")
     val testOutputPart1 = part1(testInput)
@@ -84,11 +109,11 @@ fun main() {
     println(outputPart1)
     check(outputPart1 == 44088)
 
-//    val testOutputPart2 = part2(testInput)
-//    println(testOutputPart2)
-//    check(testOutputPart2 == 5)
-//
-//    val outputPart2 = part2(input)
-//    println(outputPart2)
-//    check(outputPart2 == 1248)
+    val testOutputPart2 = part2(testInput)
+    println(testOutputPart2)
+    check(testOutputPart2 == 1924)
+
+    val outputPart2 = part2(input)
+    println(outputPart2)
+    check(outputPart2 == 1248)
 }
