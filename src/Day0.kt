@@ -1,16 +1,17 @@
 fun main() {
     val dayName = "Day0"
 
-    fun part1(input: List<String>): Int = 1
+    fun part1(input: List<String>): Int = input.size
 
-    fun part2(input: List<String>): Int = 1
+    fun part2(input: List<String>): Int = input.size
 
     val testInput = readInput("${dayName}_test")
+    val input = readInput(dayName)
+
     val testOutputPart1 = part1(testInput)
     println(testOutputPart1)
 //    check(testOutputPart1 == 7)
 
-    val input = readInput(dayName)
     val outputPart1 = part1(input)
     println(outputPart1)
 //    check(outputPart1 == 1298)

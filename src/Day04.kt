@@ -115,5 +115,5 @@ fun main() {
 
     val outputPart2 = part2(input)
     println(outputPart2)
-    check(outputPart2 == 1248)
+    check(outputPart2 == 23670)
 }

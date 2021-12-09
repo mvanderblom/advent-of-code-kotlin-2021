@@ -7,8 +7,10 @@ import java.security.MessageDigest
  */
 fun readInput(name: String): List<String> {
     val file = File("src", "$name.txt")
-    if(!file.exists())
+    if (!file.exists()) {
+        println("Creating new empty file ${file.name}")
         file.createNewFile()
+    }
     return file.readLines()
 }
 
