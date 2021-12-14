@@ -1,71 +1,93 @@
 fun main() {
     val dayName = "Day08"
 
-    val letters = ('a'..'g').toList()
-    val numbers = listOf(
-        listOf(0,1,2,4,5,6), // 0
-        listOf(2,5),
-        listOf(0,2,3,4,6),
-        listOf(0,2,3,5,6), // 3
-        listOf(1,2,3,5),
-        listOf(0,1,3,5,6),
-        listOf(0,1,3,4,5,6), // 6
-        listOf(0,2,5),
-        listOf(0,1,2,3,4,5,6),
-        listOf(0,1,2,3,5,6) // 9
-    ).map { segments -> segments.map { letters[it] }.joinToString("") }
 
+    fun decodePatterns(patternString: String): Array<Set<Char>?> {
+        val patterns = arrayOfNulls<Set<Char>>(10)
 
-    println(letters)
-
-    fun String.sorted(): String {
-        return this.toSortedSet().joinToString("")
-    }
-
-    fun decodePatterns(patterns: String) {
-        val decodePatterns = patterns.split(" ")
-            .map { it.sorted() }
-            .associate {
-                when (it.length) {
-                    2 -> it to 1
-                    3 -> it to 7
-                    4 -> it to 4
-                    7 -> it to 8
-                    else -> it to -1
+        val patternStrings: List<Set<Char>> = patternString.split(" ").map { it.toSortedSet() }
+        patternStrings
+            .forEach {
+                when (it.size) {
+                    2 -> patterns[1] = it
+                    3 -> patterns[7] = it
+                    4 -> patterns[4] = it
+                    7 -> patterns[8] = it
                 }
             }
+
+        //    9 = 6 segmenten && bevat alles van de 4
+        //    0 = 6 segmenten && bevat alles van de 1
+        //    6 = 6 segmenten
+        patternStrings
+            .filter { it.size == 6 }
+            .forEach {
+                when {
+                    (patterns[4]!! - it).isEmpty() -> patterns[9] = it
+                    (patterns[1]!! - it).isEmpty() -> patterns[0] = it
+                    else -> patterns[6] = it
+                }
+            }
+
+        //    3 = 5 segmenten && bevat alles van 7
+        //    5 = 5 segmenten && scheelt er maar 1 met 6
+        //    2 = 5 segmenten
+        patternStrings
+            .filter { it.size == 5 }
+            .forEach {
+                when {
+                    (patterns[7]!! - it).isEmpty() -> patterns[3] = it
+                    (patterns[6]!! - it).size == 1 -> patterns[5] = it
+                    else -> patterns[2] = it
+                }
+            }
+
+        return patterns
     }
 
 
     fun part1(input: List<String>): Int {
-        val x = input
+        return input
             .map { it.split(" | ") }
-            .map { (patterns, value) ->
-                val decodedPatterns = decodePatterns(patterns)
-                val values = value.split(" ")
-                    .map { it.sorted() }
-            }
-        return input.size
+            .map { (patternString, value) ->
+                val allPatterns = decodePatterns(patternString)
+                val simplePatterns = listOf(allPatterns[1], allPatterns[4], allPatterns[7], allPatterns[8])
+
+                value
+                    .split(" ")
+                    .map { it.toSortedSet() }
+                    .count { it in simplePatterns }
+            }.sum()
     }
 
-    fun part2(input: List<String>): Int = input.size
+    fun part2(input: List<String>): Int {
+        return input
+            .map { it.split(" | ") }
+            .map { (patternString, value) ->
+                val patterns = decodePatterns(patternString)
+                value
+                    .split(" ")
+                    .map { it.toSortedSet() }
+                    .map { patterns.indexOf(it) }
+                    .joinToString("").toInt()
+            }.sum()
+    }
 
     val testInput = readInput("${dayName}_test")
     val input = readInput(dayName)
 
     val testOutputPart1 = part1(testInput)
-    println(testOutputPart1)
-    check(testOutputPart1 == 26)
+    testOutputPart1 isEqualTo 26
 
     val outputPart1 = part1(input)
-    println(outputPart1)
-//    check(outputPart1 == 1298)
+    outputPart1 isEqualTo  301
+
+    val example = part2(listOf("acedgfb cdfbe gcdfa fbcad dab cefabd cdfgeb eafb cagedb ab | cdfeb fcadb cdfeb cdbaf"))
+    example isEqualTo 5353
 
     val testOutputPart2 = part2(testInput)
-    println(testOutputPart2)
-//    check(testOutputPart2 == 5)
+    testOutputPart2 isEqualTo  61229
 
     val outputPart2 = part2(input)
-    println(outputPart2)
-//    check(outputPart2 == 1248)
+    outputPart2 isEqualTo  908067
 }

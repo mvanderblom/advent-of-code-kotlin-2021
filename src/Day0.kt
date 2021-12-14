@@ -9,18 +9,14 @@ fun main() {
     val input = readInput(dayName)
 
     val testOutputPart1 = part1(testInput)
-    println(testOutputPart1)
-//    check(testOutputPart1 == 7)
+    testOutputPart1 isEqualTo 1
 
     val outputPart1 = part1(input)
-    println(outputPart1)
-//    check(outputPart1 == 1298)
+    outputPart1 isEqualTo 1
 
     val testOutputPart2 = part2(testInput)
-    println(testOutputPart2)
-//    check(testOutputPart2 == 5)
+    testOutputPart2 isEqualTo 1
 
     val outputPart2 = part2(input)
-    println(outputPart2)
-//    check(outputPart2 == 1248)
+    outputPart2 isEqualTo 1
 }

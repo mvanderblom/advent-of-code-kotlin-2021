@@ -1,4 +1,5 @@
 import java.io.File
+import java.lang.RuntimeException
 import java.math.BigInteger
 import java.security.MessageDigest
 
@@ -18,3 +19,11 @@ fun readInput(name: String): List<String> {
  * Converts string to md5 hash.
  */
 fun String.md5(): String = BigInteger(1, MessageDigest.getInstance("MD5").digest(toByteArray())).toString(16)
+
+infix fun Any.isEqualTo(expected: Any): Boolean {
+    if(!this.equals(expected)) {
+        throw RuntimeException("Got $this, but expected $expected")
+    }
+    println(this)
+    return true
+}
