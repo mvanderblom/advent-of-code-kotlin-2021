@@ -1,7 +1,6 @@
 fun main() {
     val dayName = "Day08"
 
-
     fun decodePatterns(patternString: String): Array<Set<Char>?> {
         val patterns = arrayOfNulls<Set<Char>>(10)
 
@@ -16,9 +15,6 @@ fun main() {
                 }
             }
 
-        //    9 = 6 segmenten && bevat alles van de 4
-        //    0 = 6 segmenten && bevat alles van de 1
-        //    6 = 6 segmenten
         patternStrings
             .filter { it.size == 6 }
             .forEach {
@@ -29,9 +25,6 @@ fun main() {
                 }
             }
 
-        //    3 = 5 segmenten && bevat alles van 7
-        //    5 = 5 segmenten && scheelt er maar 1 met 6
-        //    2 = 5 segmenten
         patternStrings
             .filter { it.size == 5 }
             .forEach {
@@ -49,7 +42,7 @@ fun main() {
     fun part1(input: List<String>): Int {
         return input
             .map { it.split(" | ") }
-            .map { (patternString, value) ->
+            .sumOf { (patternString, value) ->
                 val allPatterns = decodePatterns(patternString)
                 val simplePatterns = listOf(allPatterns[1], allPatterns[4], allPatterns[7], allPatterns[8])
 
@@ -57,20 +50,20 @@ fun main() {
                     .split(" ")
                     .map { it.toSortedSet() }
                     .count { it in simplePatterns }
-            }.sum()
+            }
     }
 
     fun part2(input: List<String>): Int {
         return input
             .map { it.split(" | ") }
-            .map { (patternString, value) ->
+            .sumOf { (patternString, value) ->
                 val patterns = decodePatterns(patternString)
                 value
                     .split(" ")
                     .map { it.toSortedSet() }
                     .map { patterns.indexOf(it) }
                     .joinToString("").toInt()
-            }.sum()
+            }
     }
 
     val testInput = readInput("${dayName}_test")
