@@ -20,11 +20,13 @@ fun main() {
                 input[rowIndex][colIndex]++
             }
     }
-
+    fun printBoard(input: List<List<Int>>) {
+        println(input.joinToString(System.lineSeparator()) { it.map { it.toString().padStart(2) }.joinToString()})
+    }
     fun findFlashes(input: List<List<Int>>) = input
         .mapIndexed { rowIndex, row ->
             row.mapIndexed { colIndex, value ->
-                if (value % 10 == 0)
+                if (value >= 10)
                     rowIndex to colIndex
                 else
                     null
@@ -37,22 +39,22 @@ fun main() {
                 input[rowIndex][colIndex]++
             }
         }
-
-        do {
-            var flashes = findFlashes(input)
-            flashes.forEach { updateNeighbours(it, input) }
-        }
-        while (flashes.isNotEmpty())
-
+        println("Updated every point by 1")
         var flashCount = 0
-        input.forEachIndexed { rowIndex, row ->
-            row.forEachIndexed { colIndex, value ->
-                if (value > 10) {
-                    flashCount++
-                    input[rowIndex][colIndex] = 0
-                }
+        do {
+            println("Looking for flashes in: ")
+            printBoard(input)
+
+            val flashes = findFlashes(input)
+            println("flashes(${flashes.size}) $flashes")
+
+            flashes.forEach { (rowIndex, colIndex) ->
+                flashCount += input[rowIndex][colIndex] % 9
+                input[rowIndex][colIndex] = 0
+                updateNeighbours(rowIndex to colIndex, input)
             }
         }
+        while (flashes.isNotEmpty())
 
         return flashCount
     }
@@ -64,26 +66,27 @@ fun main() {
                 .toMutableList()
         }
         println("Before any steps:")
-        println(rows.joinToString(System.lineSeparator()) { it.joinToString("") })
+        printBoard(rows)
 
         return (1..steps).sumOf { i ->
-            println("After step $i: ")
+            println("Executing step $i: ")
             val flashes = executeStep(rows)
-            println(rows.joinToString(System.lineSeparator()) { it.joinToString("") })
+            println("After step $i: ")
+            printBoard(rows)
             flashes
         }
     }
 
     fun part2(input: List<String>): Int = input.size
 
-    val testInputSimple = readInput("${dayName}_test_simple")
-    val x = part1(testInputSimple, 2)
-    x isEqualTo 9
+//    val testInputSimple = readInput("${dayName}_test_simple")
+//    val x = part1(testInputSimple, 2)
+//    x isEqualTo 9
 
     val testInput = readInput("${dayName}_test")
     val input = readInput(dayName)
 
-    val testOutputPart1 = part1(testInput)
+    val testOutputPart1 = part1(testInput, 2)
     testOutputPart1 isEqualTo 1656
 
     val outputPart1 = part1(input)
