@@ -22,7 +22,7 @@ fun String.md5(): String = BigInteger(1, MessageDigest.getInstance("MD5").digest
 
 infix fun Any.isEqualTo(expected: Any): Boolean {
     if(!this.equals(expected)) {
-        throw RuntimeException("Got $this, but expected $expected")
+        throw RuntimeException("Expected $expected, but got $this")
     }
     println(this)
     return true

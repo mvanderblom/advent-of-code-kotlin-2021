@@ -1,16 +1,6 @@
 fun main() {
     val dayName = "Day09"
 
-    fun List<Int>.product(): Int {
-        if(isEmpty())
-            return 0
-        var product = this[0]
-        for (element in this.subList(1, this.size)) {
-            product *= element
-        }
-        return product
-    }
-
     fun getNeighbours(rowNum: Int, colNum: Int, rows: List<List<Int>>) =
         listOf(-1 to 0, 0 to -1, 0 to 1, 1 to 0).mapNotNull { (addRow, addCol) ->
             val neighbourRow = rowNum + addRow
@@ -40,6 +30,31 @@ fun main() {
         }
         .flatten()
 
+    fun getBasinPoints(rowNum: Int, colNum: Int, rows: List<List<Int>>, points: MutableSet<Pair<Int, Int>>): Set<Pair<Int, Int>> {
+        val currentPoint = rowNum to colNum
+        if (points.contains(currentPoint) || rows[rowNum][colNum] == 9) {
+            return points
+        }
+
+        points.add(currentPoint)
+
+        getNeighbours(rowNum, colNum, rows).forEach { (nRow, nCol) ->
+            getBasinPoints(nRow, nCol, rows, points)
+        }
+
+        return points
+    }
+
+    fun List<Int>.product(): Int {
+        if(isEmpty())
+            return 0
+        var product = this[0]
+        for (element in this.subList(1, this.size)) {
+            product *= element
+        }
+        return product
+    }
+
     fun part1(input: List<String>): Int {
         val rows = input.map { it.toList().map { it.toString().toInt() } }
         val lowPoints = getLowPoints(rows)
@@ -49,44 +64,14 @@ fun main() {
 
     fun part2(input: List<String>): Int {
         val rows = input.map { it.toList().map { it.toString().toInt() } }
-        val lowPoints = getLowPoints(rows)
 
-        return lowPoints.map { (rowNum, colNum) ->
-            var basinSize = 0
-
-            var up = rowNum - 1
-            while (up >= 0 && rows[up][colNum] != 9){
-                basinSize += rows[up][colNum]
-                up--
+        return getLowPoints(rows)
+            .map { (row, col) ->
+                getBasinPoints(row, col, rows, mutableSetOf()).size
             }
-
-            // Look down
-            var down = rowNum + 1
-            while (down < rows.size && rows[down][colNum] != 9){
-                basinSize += rows[down][colNum]
-                down++
-            }
-
-            // Look left
-            var left = colNum - 1
-            while (left >= 0 && rows[rowNum][left] != 9){
-                basinSize += rows[rowNum][left]
-                left--
-            }
-
-            // Look right
-            var right = rowNum + 1
-            while (right < rows.size && rows[rowNum][right] != 9){
-                basinSize += rows[rowNum][right]
-                right++
-            }
-
-            basinSize
-        }
-        .sortedDescending()
-        .subList(0, 3)
-        .product()
-
+            .sortedDescending()
+            .subList(0,3)
+            .product()
     }
 
     val testInput = readInput("${dayName}_test")
@@ -102,5 +87,5 @@ fun main() {
     testOutputPart2 isEqualTo 1134
 
     val outputPart2 = part2(input)
-    outputPart2 isEqualTo 1
+    outputPart2 isEqualTo 1038240
 }
