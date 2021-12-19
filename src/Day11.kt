@@ -6,18 +6,19 @@ class Octopus(
     lateinit var neighbours: List<Octopus>
 
     fun executeStep() {
-        energy++
-        if(energy == 10) {
-            flash()
+        if(!hasFlashed) {
+            energy++
+            if (energy == 10) {
+                flash()
+            }
         }
     }
 
-    fun flash() {
-        if(!hasFlashed) {
-            energy = 0
-            grid.countFlash()
-            neighbours.forEach { it.executeStep() }
-        }
+    private fun flash() {
+        hasFlashed = true
+        energy = 0
+        grid.countFlash()
+        neighbours.forEach { it.executeStep() }
     }
 
     fun reset() {
@@ -28,17 +29,20 @@ class Octopus(
 class Grid {
     var flashCount = 0
     private val gridMap: MutableMap<Pair<Int, Int>, Octopus> = mutableMapOf()
-    private val grid: List<List<Octopus>>
+    private val height: Int
+    private val width: Int
 
     constructor(input: List<String>) {
-        this.grid = input.mapIndexed { rowIndex, row ->
+        height = input.size
+        width = input[0].length
+
+        input.forEachIndexed { rowIndex, row ->
             row
                 .toList()
-                .mapIndexed { colIndex, c ->
+                .forEachIndexed { colIndex, c ->
                     val energy = c.toString().toInt()
-                    val octopus = Octopus( energy, this)
-                    gridMap.put(rowIndex to colIndex, octopus)
-                    octopus
+                    val octopus = Octopus(energy, this)
+                    gridMap[rowIndex to colIndex] = octopus
                 }
         }
 
@@ -54,7 +58,8 @@ class Grid {
                 val neighbourRow = rowIndex + addRow
                 val neighbourCol = colIndex + addCol
 
-                if (neighbourRow >= 0 && neighbourRow < grid.size && neighbourCol >= 0 && neighbourCol < grid[0].size)
+                if (neighbourRow in 0 until height
+                    && neighbourCol in 0 until  width)
                     gridMap[neighbourRow to neighbourCol]
                 else
                     null
@@ -64,13 +69,21 @@ class Grid {
     fun executeStep(): Int {
         gridMap.values.forEach {
             it.reset()
+        }
+        gridMap.values.forEach {
             it.executeStep()
         }
         return flashCount
     }
 
     fun print() {
-        println(grid.joinToString(System.lineSeparator()) { it.map { it.energy.toString().padStart(2) }.joinToString()})
+        for (row in 0 until height){
+            for (col in 0 until width) {
+                val octo = gridMap[row to col]!!
+                print(octo.energy.toString().padStart(2))
+            }
+            println()
+        }
     }
 
     fun countFlash() {
@@ -105,11 +118,11 @@ fun main() {
     val testInput = readInput("${dayName}_test")
     val input = readInput(dayName)
 
-    val testOutputPart1 = part1(testInput, 2)
+    val testOutputPart1 = part1(testInput)
     testOutputPart1 isEqualTo 1656
 
     val outputPart1 = part1(input)
-    outputPart1 isEqualTo 1
+    outputPart1 isEqualTo 1741
 
     val testOutputPart2 = part2(testInput)
     testOutputPart2 isEqualTo 1
