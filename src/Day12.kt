@@ -1,29 +1,66 @@
+val uppercase = Regex("[A-Z]+")
+
 class Links(input: List<String>){
-    private val links: Map<String, List<Pair<String, String>>>
-    val paths: List<List<String>>
+    private val links: Map<String, List<String>>
 
     init {
         links = input
-            .map {
-                val (source, dest) = it.split("-")
-                    .sortedBy { x -> x != "start" }
-                    .sortedBy { x -> x == "end" }
-                source to dest
+            .map { parseLine(it) }
+            .flatMap { (source, dest) -> reversePaths(source, dest) }
+            .groupBy (
+                {(source, _) -> source},
+                {(_, target) -> target}
+            )
+            .also { println(it.entries.joinToString(System.lineSeparator())) }
+        println("-----------------")
+    }
+    private fun parseLine(it: String): Pair<String, String> {
+        val (source, dest) = it.split("-")
+            .sortedBy {
+                when {
+                    it.contains("start") -> -1
+                    it.contains("end") -> 1
+                    else -> 0
+                }
             }
-            .groupBy { (source, _) -> source }
-        links.entries.forEach { (source, dest) -> }
-        println("Links: $links")
-        paths = links["start"]!!
-            .map { (_, dest) -> explore(dest, mutableListOf("start")) }
+        return source to dest
     }
 
-    private fun explore(dest: String, path: MutableList<String>): List<String> {
-        path.add(dest)
-        if(dest.matches(Regex("[A-Z]")) || !path.contains(dest)) {
-            this.links[dest]
-                ?.map { (_, dest) -> explore(dest, path) }
+    private fun reversePaths(
+        source: String,
+        dest: String
+    ) = if (source != "start" && dest != "end"
+    )
+        listOf(source to dest, dest to source)
+    else
+        listOf(source to dest)
+
+
+    val paths by lazy { explore("start") }
+
+    private fun explore(target: String,
+                        currentPath: MutableList<String> = mutableListOf(),
+                        validPaths: MutableList<List<String>> = mutableListOf()
+    ): List<List<String>> {
+        currentPath.add(target)
+        val destinations = this.links[target]
+
+        if(target == "end") {
+            validPaths.add(currentPath)
+        } else{
+            destinations
+                ?.filter { !currentPath.contains(it) || it.matches(uppercase) }
+                ?.forEach { newDest ->
+                    explore(newDest, currentPath.toMutableList(), validPaths)
+                }
         }
-        return path
+
+//        println("Explore $currentPath")
+//        println("destinations $destinations")
+//        println("validPaths: $validPaths")
+//        println("--------------------")
+        return validPaths
+
     }
 }
 
@@ -33,10 +70,8 @@ fun main() {
 
     fun part1(input: List<String>): Int {
         val links = Links(input)
-        println(links.paths.joinToString(System.lineSeparator()))
         return links.paths.size
     }
-
 
     fun part2(input: List<String>): Int = input.size
 
@@ -53,7 +88,7 @@ fun main() {
 
     part1(input) isEqualTo 1
 
-    part2(testInput) isEqualTo 1
-
-    part2(input) isEqualTo 1
+//    part2(testInput) isEqualTo 1
+//
+//    part2(input) isEqualTo 1
 }
