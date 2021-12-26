@@ -1,41 +1,31 @@
 val upperCase = Regex("[A-Z]+")
 val lowerCase = Regex("[a-z]+")
 
-class Links(input: List<String>){
-    private val links: Map<String, List<String>>
+class Chart(input: List<String>) {
+    val links: Map<String, List<String>>
 
     init {
         links = input
-            .map { parseLine(it) }
-            .flatMap { (source, dest) -> reversePaths(source, dest) }
+            .flatMap { parseLine(it) }
+            .filter { (source, target) -> source != "end" && target != "start" }
             .groupBy (
                 {(source, _) -> source},
                 {(_, target) -> target}
-            )
-            .also { println(it.entries.joinToString(System.lineSeparator())) }
-        println("-----------------")
-    }
-    private fun parseLine(it: String): Pair<String, String> {
-        val (source, dest) = it.split("-")
-            .sortedBy {
-                when {
-                    it.contains("start") -> -1
-                    it.contains("end") -> 1
-                    else -> 0
-                }
+            ).also {
+                println(it)
+                println("-----------------")
             }
-        return source to dest
     }
 
-    private fun reversePaths(
-        source: String,
-        dest: String
-    ) = if (source != "start" && dest != "end"
-    )
-        listOf(source to dest, dest to source)
-    else
-        listOf(source to dest)
+    private fun parseLine(it: String): List<Pair<String, String>> {
+        val (source, dest) = it.split("-")
+        return listOf(source to dest, dest to source)
+    }
 
+}
+
+class Explorer(val chart: Chart,
+               val destinationFilter: (currentPath: List<String>, destination: String) -> Boolean) {
 
     val paths by lazy { explore("start") }
 
@@ -44,80 +34,56 @@ class Links(input: List<String>){
                         validPaths: MutableList<List<String>> = mutableListOf()
     ): List<List<String>> {
         currentPath.add(target)
-        val destinations = this.links[target]
+//        println("Explore $currentPath")
 
-        if(target == "end") {
+        if (target == "end") {
             validPaths.add(currentPath)
         } else{
+            val destinations = this.chart.links[target]
+//            println("destinations $destinations")
             destinations
-                ?.filter { !currentPath.contains(it) || it.matches(upperCase) }
+                ?.filter { destinationFilter(currentPath, it) }
                 ?.forEach { newDest ->
                     explore(newDest, currentPath.toMutableList(), validPaths)
                 }
         }
 
-//        println("Explore $currentPath")
-//        println("destinations $destinations")
 //        println("validPaths: $validPaths")
 //        println("--------------------")
         return validPaths
-
-    }
-
-    val paths2 by lazy { explore2("start") }
-
-    private fun explore2(target: String,
-                        currentPath: MutableList<String> = mutableListOf(),
-                        validPaths: MutableList<List<String>> = mutableListOf()
-    ): List<List<String>> {
-        currentPath.add(target)
-        val destinations = this.links[target]
-
-        if(target == "end") {
-            validPaths.add(currentPath)
-        } else{
-            destinations
-                ?.filter { allowedDestinations(currentPath, it) }
-                ?.forEach { newDest ->
-                    explore2(newDest, currentPath.toMutableList(), validPaths)
-                }
-        }
-
-//        println("Explore $currentPath")
-//        println("destinations $destinations")
-//        println("validPaths: $validPaths")
-//        println("--------------------")
-        return validPaths
-
-    }
-
-    private fun allowedDestinations(currentPath: MutableList<String>, destination: String): Boolean {
-        val lowerCaseChars = currentPath.filter { it.matches(lowerCase) }
-        val allowed = destination.matches(upperCase) || lowerCaseChars.size - lowerCaseChars.toSet().size <= 1
-        println("lowerCaseChars for: $destination:  $lowerCaseChars ($allowed))")
-        return allowed
     }
 }
 
 fun main() {
     val dayName = "Day12"
 
-    fun part1(input: List<String>): Int = Links(input).paths.size
+    fun part1(input: List<String>): Int {
+        val chart = Chart(input)
+        val explorer = Explorer(chart) { path, dest -> !path.contains(dest) || dest.matches(upperCase) }
+        return explorer.paths.size
+    }
 
-    fun part2(input: List<String>): Int = Links(input).paths2.size
+    fun part2(input: List<String>): Int {
+        val chart = Chart(input)
+        val explorer = Explorer(chart) { path, dest ->
+            val lowerCaseChars = path.filter { it.matches(lowerCase) }
+            dest.matches(upperCase) || lowerCaseChars.size - lowerCaseChars.toSet().size <= 1
+        }
+        return explorer.paths.size
+    }
 
     val testInputSimple1 = readInput("${dayName}_test_simple_1")
     val testInputSimple2 = readInput("${dayName}_test_simple_2")
     val testInput = readInput("${dayName}_test")
     val input = readInput(dayName)
 
-//    part1(testInputSimple1) isEqualTo 10
-//
-//    part1(testInputSimple2) isEqualTo 19
-//
-//    part1(testInput) isEqualTo 226
-//
-//    part1(input) isEqualTo 5874
+    part1(testInputSimple1) isEqualTo 10
+
+    part1(testInputSimple2) isEqualTo 19
+
+    part1(testInput) isEqualTo 226
+
+    part1(input) isEqualTo 5874
 
     part2(testInputSimple1) isEqualTo 36
 
