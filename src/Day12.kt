@@ -1,4 +1,5 @@
-val uppercase = Regex("[A-Z]+")
+val upperCase = Regex("[A-Z]+")
+val lowerCase = Regex("[a-z]+")
 
 class Links(input: List<String>){
     private val links: Map<String, List<String>>
@@ -49,7 +50,7 @@ class Links(input: List<String>){
             validPaths.add(currentPath)
         } else{
             destinations
-                ?.filter { !currentPath.contains(it) || it.matches(uppercase) }
+                ?.filter { !currentPath.contains(it) || it.matches(upperCase) }
                 ?.forEach { newDest ->
                     explore(newDest, currentPath.toMutableList(), validPaths)
                 }
@@ -62,33 +63,67 @@ class Links(input: List<String>){
         return validPaths
 
     }
+
+    val paths2 by lazy { explore2("start") }
+
+    private fun explore2(target: String,
+                        currentPath: MutableList<String> = mutableListOf(),
+                        validPaths: MutableList<List<String>> = mutableListOf()
+    ): List<List<String>> {
+        currentPath.add(target)
+        val destinations = this.links[target]
+
+        if(target == "end") {
+            validPaths.add(currentPath)
+        } else{
+            destinations
+                ?.filter { allowedDestinations(currentPath, it) }
+                ?.forEach { newDest ->
+                    explore2(newDest, currentPath.toMutableList(), validPaths)
+                }
+        }
+
+//        println("Explore $currentPath")
+//        println("destinations $destinations")
+//        println("validPaths: $validPaths")
+//        println("--------------------")
+        return validPaths
+
+    }
+
+    private fun allowedDestinations(currentPath: MutableList<String>, destination: String): Boolean {
+        val lowerCaseChars = currentPath.filter { it.matches(lowerCase) }
+        val allowed = destination.matches(upperCase) || lowerCaseChars.size - lowerCaseChars.toSet().size <= 1
+        println("lowerCaseChars for: $destination:  $lowerCaseChars ($allowed))")
+        return allowed
+    }
 }
 
 fun main() {
     val dayName = "Day12"
 
+    fun part1(input: List<String>): Int = Links(input).paths.size
 
-    fun part1(input: List<String>): Int {
-        val links = Links(input)
-        return links.paths.size
-    }
-
-    fun part2(input: List<String>): Int = input.size
+    fun part2(input: List<String>): Int = Links(input).paths2.size
 
     val testInputSimple1 = readInput("${dayName}_test_simple_1")
     val testInputSimple2 = readInput("${dayName}_test_simple_2")
     val testInput = readInput("${dayName}_test")
     val input = readInput(dayName)
 
-    part1(testInputSimple1) isEqualTo 10
-
-    part1(testInputSimple2) isEqualTo 19
-
-    part1(testInput) isEqualTo 226
-
-    part1(input) isEqualTo 1
-
-//    part2(testInput) isEqualTo 1
+//    part1(testInputSimple1) isEqualTo 10
 //
-//    part2(input) isEqualTo 1
+//    part1(testInputSimple2) isEqualTo 19
+//
+//    part1(testInput) isEqualTo 226
+//
+//    part1(input) isEqualTo 5874
+
+    part2(testInputSimple1) isEqualTo 36
+
+    part2(testInputSimple2) isEqualTo 103
+
+    part2(testInput) isEqualTo 3509
+
+    part2(input) isEqualTo 153592
 }
