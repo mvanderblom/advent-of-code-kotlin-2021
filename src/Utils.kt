@@ -3,6 +3,18 @@ import java.lang.RuntimeException
 import java.math.BigInteger
 import java.security.MessageDigest
 
+fun Array<Array<String>>.transpose(): Array<Array<String>> {
+    val columns = this[0].size
+
+    val transposed = Array(columns) { Array(this.size) { "" } }
+    this.forEachIndexed { rowIndex, rows ->
+        rows.forEachIndexed { colIndex, cell ->
+            transposed[colIndex][rowIndex] = cell
+        }
+    }
+    return transposed
+}
+
 /**
  * Reads lines from the given input txt file.
  */
