@@ -93,8 +93,6 @@ fun main() {
     val outputPart1 = part1(input)
     outputPart1 isEqualTo 837
 
-
-
     val outputPart2 = part2(input)
     outputPart2.print()
     // EPZGKCHU
